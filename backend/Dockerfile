@@ -1,0 +1,68 @@
+###########
+# BUILDER #
+###########
+
+# pull official base image
+FROM python:3.10-alpine as builder
+
+# set work directory
+WORKDIR /usr/src/backend
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# install psycopg2 dependencies
+RUN apk add postgresql-dev gcc python3-dev musl-dev
+
+# lint
+RUN pip install --upgrade pip
+RUN pip install flake8==3.9.2
+COPY . .
+RUN flake8 --ignore=E501,F401 .
+
+# install dependencies
+COPY ./requirements.txt .
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/backend/wheels -r requirements.txt
+
+#########
+# FINAL #
+#########
+
+# pull official base image
+FROM python:3.10-alpine
+
+# create directory for the django-user user
+RUN mkdir -p /home/django-user
+
+# create the django-user user
+RUN addgroup -S django-user && adduser -S django-user -G django-user
+
+# create the appropriate directories
+ENV HOME=/home/django-user
+ENV APP_HOME=/home/django-user/web
+RUN mkdir $APP_HOME
+WORKDIR $APP_HOME
+
+# install dependencies
+RUN apk update && apk add libpq
+COPY --from=builder /usr/src/backend/wheels /wheels
+COPY --from=builder /usr/src/backend/requirements.txt .
+RUN pip install --no-cache /wheels/*
+
+# copy entrypoint.sh
+COPY ./entrypoint.sh .
+RUN sed -i 's/\r$//g'  $APP_HOME/entrypoint.sh
+RUN chmod +x  $APP_HOME/entrypoint.sh
+
+# copy project
+COPY . $APP_HOME
+
+# chown all the files to the app user
+RUN chown -R django-user:django-user $APP_HOME
+
+# change to the app user
+USER django-user
+
+# run entrypoint.sh
+ENTRYPOINT ["/home/django-user/web/entrypoint.sh"]
