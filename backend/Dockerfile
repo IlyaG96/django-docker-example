@@ -42,6 +42,7 @@ RUN addgroup -S django-user && adduser -S django-user -G django-user
 ENV HOME=/home/django-user
 ENV APP_HOME=/home/django-user/web
 RUN mkdir $APP_HOME
+RUN mkdir $APP_HOME/staticfiles
 WORKDIR $APP_HOME
 
 # install dependencies
@@ -57,7 +58,6 @@ RUN chmod +x  $APP_HOME/entrypoint.sh
 
 # copy project
 COPY . $APP_HOME
-
 # chown all the files to the app user
 RUN chown -R django-user:django-user $APP_HOME
 
