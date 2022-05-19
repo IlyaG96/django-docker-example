@@ -21,19 +21,42 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env.db
-  nginx:
+  nginx-proxy:
+    container_name: nginx-proxy
     build: ./nginx
+    restart: always
+    ports:
+      - '443:443'
+      - '80:80'
     volumes:
       - static_volume:/home/django-user/web/staticfiles
       - media_volume:/home/django-user/web/mediafiles
-    ports:
-      - '1337:80'
+      - certs:/etc/nginx/certs
+      - html:/usr/share/nginx/html
+      - vhost:/etc/nginx/vhost.d
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
     depends_on:
       - web
+  nginx-proxy-letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    env_file:
+      - ./.env.staging.proxy-companion
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - certs:/etc/nginx/certs
+      - html:/usr/share/nginx/html
+      - vhost:/etc/nginx/vhost.d
+      - acme:/etc/acme.sh
+    depends_on:
+      - nginx-proxy
 
 volumes:
   postgres_data:
   static_volume:
   media_volume:
-
+  certs:
+  html:
+  vhost:
+  acme:
 

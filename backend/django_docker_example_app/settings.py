@@ -11,6 +11,8 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost', '0.0.0.0'])
 CSRF_COOKIE_DOMAIN = env.list('CSRF_COOKIE_DOMAIN', 'http://127.0.0.1:1337')
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', 'http://127.0.0.1:1337')
 
+# In this tuple, when X-Forwarded-Proto is set to https the request is secure.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
