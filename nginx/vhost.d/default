@@ -1,2 +1,9 @@
-static_volume:/home/django-user/web/staticfiles
-media_volume:/home/django-user/web/mediafiles
+location /static/ {
+  alias /home/django-user/web/staticfiles/;
+  add_header Access-Control-Allow-Origin *;
+}
+
+location /media/ {
+  alias /home/django-user/web/mediafiles/;
+  add_header Access-Control-Allow-Origin *;
+}
