@@ -37,20 +37,28 @@
 ### Docker-compose для локального сервера
 - Выполните команду:
 ```shell
-docker-compose -f docker-compose.dev.yaml up --build
+docker-compose -f docker-compose.dev.yaml up --build -d
 ```
 ### Docker-compose для локального сервера с psql на localhost
 - Выполните команду:
 ```shell
-docker-compose -f docker-compose.local-psql.yaml up --build
+docker-compose -f docker-compose.local-psql.yaml up --build -d
+```
+### Docker-compose для dev сервера
+- Выполните команду:
+```shell
+docker-compose -f docker-compose.prod.yaml up --build -d
 ```
 ### Docker-compose для dev сервера с psql на localhost
 - Выполните команду:
 ```shell
-docker-compose -f docker-compose.prod.yaml up --build
+docker-compose -f docker-compose.prod.local-psql.yaml up --build -d
 ```
-### Docker-compose для dev сервера с psql на localhost
+### Завершить работу docker-compose
 - Выполните команду:
 ```shell
-docker-compose -f docker-compose.prod.local-psql.yaml up --build
+docker-compose -f docker-compose* down -v
 ```
+- На месте `*` - название выбранного docker-compose.    
+- `-v` указывается в том случае, если необходимо удалить `volumes`.
+
